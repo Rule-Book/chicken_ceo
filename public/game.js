@@ -19,11 +19,11 @@ getUserId();
 let storedTimestamp = Date.now();
 
 function countUp() {
-	const counter document.getElementById("counter");
+	const counter = document.getElementById("counter");
 	const currentTimestamp = Date.now();
 	const elapsedMs = currentTimestamp - storedTimestamp
 	const elapsedSecs = Math.floor(elapsedMs / 1000);
-	counter.textContent = `${seconds}s`;
+	counter.textContent = `${elapsedSecs}s`;
 }
 
 requestAnimationFrame(countUp);
