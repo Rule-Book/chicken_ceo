@@ -2,7 +2,7 @@
 - [x] Setup local git repo
 - [x] Setup Hello World in node
 - [x] Log localStorage cookie or create if not created
-- [ ] Call requestAnimationFrame in Vanilla JS to show counter ticking up
+- [x] Call requestAnimationFrame in Vanilla JS to show counter ticking up
 - [ ] Setup REST API to *create* & *load* user in sqlite
 - [ ] Setup sqlite database
 - [ ] implement REST API *save* user function
