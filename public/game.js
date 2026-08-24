@@ -24,6 +24,8 @@ function countUp() {
 	const elapsedMs = currentTimestamp - storedTimestamp
 	const elapsedSecs = Math.floor(elapsedMs / 1000);
 	counter.textContent = `${elapsedSecs}s`;
+
+	requestAnimationFrame(countUp);
 }
 
 requestAnimationFrame(countUp);
