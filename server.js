@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const sqlite3 = require('better-sqlite3');
 
+
 const app = express();
 const DB_PATH = process.env.DB_PATH || 'game.db';
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,10 @@ const PORT = process.env.PORT || 3000;
 //serve everything in the public folder
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 
 app.listen(PORT, () => {
 	console.log(`listening on http://localhost:${PORT}`);
@@ -31,3 +36,48 @@ db.exec(`
     eggs            INTEGER DEFAULT 0
   )
 `);
+
+function getUserId() {
+	const key = 'game_user_id';
+
+	let id = localStorage.getItem(key);
+
+	if (!id) {
+		id = crypto.randomUUID();
+		localStorage.setItem(key, id);
+		console.log(`Generated new game_user_id: ${id}`);
+		return id;
+	} else {
+		console.log(`Found existing game_user_id: ${id}`);
+	}
+}
+
+const userCookie = getUserId();
+
+// get user id and display values 
+// create user id with default values in db if it doesn't exist
+// 1. check db for user
+// 2. return values in array to display in javascript string
+// 3. if row doesn't exist, create row and return default values
+
+app.get('/initializeUser', (req, res) => {
+    const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
+    // const user = userQuery.get(userCookie);
+    // hardcoded cookie to test undefined response
+    const user = userQuery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    console.log('loading user');
+    
+    // create row with default values if user is not in table
+    if (user == undefined) {
+    	console.log("user does not exist:");
+    	console.log(userCookie);
+    	let createDefaultUser = db.prepare(`
+    		INSERT INTO game_state (game_user_id, last_save_time)
+    		VALUES (?, datetime('now'))
+    	`);
+    	createDefaultUser.run(userCookie);
+	console.log('created user');
+    } else {
+	console.log('found user');
+    }
+});
