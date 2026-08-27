@@ -46,16 +46,23 @@ async function loadStats() {
 	document.getElementById('traders').textContent = temp.traders;
 	document.getElementById('money').textContent = temp.money;
 	document.getElementById('eggs').textContent = temp.eggs;
+	// store a local copy of the latest values from database to simulate game on client until next server sync
+	localChickens = temp.chickens;
+	initialEggs = temp.eggs;
+	storedTimestamp = Date.now();
 }
 
 let storedTimestamp = Date.now();
 
+let initialEggs = 0;
+let localChickens = 0;
 function countUp() {
-	const counter = document.getElementById("counter");
+	const eggs = document.getElementById("eggs");
 	const currentTimestamp = Date.now();
 	const elapsedMs = currentTimestamp - storedTimestamp
 	const elapsedSecs = Math.floor(elapsedMs / 1000);
-	counter.textContent = `${elapsedSecs}s`;
+	const freshEggs = initialEggs + Math.floor(elapsedMs / 1000) * localChickens;
+	counter.textContent = `${freshEggs} eggs`;
 
 	requestAnimationFrame(countUp);
 }
