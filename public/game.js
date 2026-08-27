@@ -40,12 +40,12 @@ async function loadStats() {
 		console.log(e.message);
 	}
 	console.log("completed load on front-end");
-	document.getElementById('chickens').textContent = data.chickens;
-	document.getElementById('coops').textContent = data.coops;
-	document.getElementById('workers').textContent = data.workers;
-	document.getElementById('traders').textContent = data.traders;
-	document.getElementById('money').textContent = data.money;
-	document.getElementById('eggs').textContent = data.eggs;
+	document.getElementById('chickens').textContent = temp.chickens;
+	document.getElementById('coops').textContent = temp.coops;
+	document.getElementById('workers').textContent = temp.workers;
+	document.getElementById('traders').textContent = temp.traders;
+	document.getElementById('money').textContent = temp.money;
+	document.getElementById('eggs').textContent = temp.eggs;
 }
 
 let storedTimestamp = Date.now();
