@@ -75,9 +75,35 @@ app.get('/initializeUser', (req, res) => {
     		INSERT INTO game_state (game_user_id, last_save_time)
     		VALUES (?, datetime('now'))
     	`);
-    	createDefaultUser.run(userCookie);
+    	createDefaultUser.run('666361b0-0fbc-4922-9fd4-8d6e298204b5');
 	console.log('created user');
     } else {
 	console.log('found user');
+    }
+});
+
+
+app.get('/loadStats', (req, res) => {
+    const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
+    // const user = userQuery.get(userCookie);
+    // hardcoded cookie to test undefined response
+    const user = userQuery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    console.log('loading user');
+    
+    // create row with default values if user is not in table
+    if (user == undefined) {
+    	console.log("user does not exist:");
+    	// console.log(userCookie);
+    	console.log('created user');
+    } else {
+    	let loadUserStats = db.prepare(`
+    		SELECT chickens, coops, workers, traders, money, eggs FROM game_state WHERE game_user_id IS ?
+    	`);
+    	const stats = loadUserStats.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	if (!stats) return res.status(404).json({ error: 'No user found' });
+	console.log('found user');
+	    console.log(stats);
+	    console.log("passing to front-end");
+	res.json({ok: true, ...stats });
     }
 });
