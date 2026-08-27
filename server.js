@@ -37,22 +37,22 @@ db.exec(`
   )
 `);
 
-function getUserId() {
-	const key = 'game_user_id';
-
-	let id = localStorage.getItem(key);
-
-	if (!id) {
-		id = crypto.randomUUID();
-		localStorage.setItem(key, id);
-		console.log(`Generated new game_user_id: ${id}`);
-		return id;
-	} else {
-		console.log(`Found existing game_user_id: ${id}`);
-	}
-}
-
-const userCookie = getUserId();
+// function getUserId() {
+// 	const key = 'game_user_id';
+// 
+// 	let id = localStorage.getItem(key);
+// 
+// 	if (!id) {
+// 		id = crypto.randomUUID();
+// 		localStorage.setItem(key, id);
+// 		console.log(`Generated new game_user_id: ${id}`);
+// 		return id;
+// 	} else {
+// 		console.log(`Found existing game_user_id: ${id}`);
+// 	}
+// }
+// 
+// const userCookie = getUserId();
 
 // get user id and display values 
 // create user id with default values in db if it doesn't exist
@@ -70,7 +70,7 @@ app.get('/initializeUser', (req, res) => {
     // create row with default values if user is not in table
     if (user == undefined) {
     	console.log("user does not exist:");
-    	console.log(userCookie);
+    	// console.log(userCookie);
     	let createDefaultUser = db.prepare(`
     		INSERT INTO game_state (game_user_id, last_save_time)
     		VALUES (?, datetime('now'))

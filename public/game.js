@@ -14,7 +14,19 @@ function getUserId() {
 	}
 }
 
-getUserId();
+const userCookie = getUserId();
+
+async function init() {
+	try {
+		const resp = await fetch('/initializeUser', {method:'GET'});
+		const data = await resp.json();
+		if (!data.ok) throw new Error(data.msg);
+		console.log("Init processed");
+	} catch (e) {
+		console.log(e.message);
+	}
+}
+
 
 let storedTimestamp = Date.now();
 
