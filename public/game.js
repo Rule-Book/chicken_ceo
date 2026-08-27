@@ -62,7 +62,7 @@ function countUp() {
 	const elapsedMs = currentTimestamp - storedTimestamp
 	const elapsedSecs = Math.floor(elapsedMs / 1000);
 	const freshEggs = initialEggs + Math.floor(elapsedMs / 1000) * localChickens;
-	counter.textContent = `${freshEggs} eggs`;
+	eggs.textContent = `${freshEggs} eggs`;
 
 	requestAnimationFrame(countUp);
 }
