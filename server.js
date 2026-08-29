@@ -128,16 +128,29 @@ app.post('/saveStats', (req, res) => {
 });
 
 app.post('/updateResource', (req, res) => {
+	const ALLOWED_COLUMNS = new Set([
+		'chickens',
+		'coops',
+		'workers',
+		'traders',
+		'eggs'
+	]);
 	const {resource, amount, userId } = req.body;
 	console.log('received stats for user', userId);
-	console.log({ chickens, coops, workers, traders, money, eggs });
-	const userQuery = db.prepare(`
+	console.log({resource, amount, userId });
+	if (!ALLOWED_COLUMNS.has(resource)) {
+		return res.status(404).json({
+			error: `Unknown column: '${resource}'`
+		});
+	}
+	const sql = `
 		UPDATE game_state
-		SET    ? = ? + ?, 
-		WHERE game_user_id IS ?`);
-	userQuery.run(resource, resource, amount, userId);
+		SET    ${resource} = ${resource} + ? 
+		WHERE game_user_id IS ?`;
+	const userQuery = db.prepare(sql);
 	console.log('resource', resource);
 	console.log('amount', amount);
+	userQuery.run(/*resource, resource,*/ amount, userId);
 	console.log('updated resource for user', userId);
 	res.json({ ok: true});
 });

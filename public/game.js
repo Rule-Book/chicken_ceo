@@ -25,13 +25,13 @@ const abbreviations = {
 };
 
 function getDBCol(resource) {
-	const resource = resource.toLowerCase();
-	return abbreviations[resource];
+	const resourceLowercase = resource.toLowerCase();
+	return abbreviations[resourceLowercase];
 }
 
-function buyChicken() {
+async function buyResource(resource) {
 	const request = {
-		resource: getDBCol('chicken'),
+		resource: getDBCol(resource),
 		amount: 1,
 		userId: userCookie
 	};
