@@ -127,6 +127,48 @@ app.post('/saveStats', (req, res) => {
 	res.json({ ok: true});
 });
 
+const traderVolume = 12; //traders always sell a dozen
+const pricePerDozen = 24;
+app.post('/sellEggs', (req, res) => {
+	const { userId } = req.body;
+	const traders = db.prepare(`
+		SELECT traders
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	const eggs = db.prepare(`
+		SELECT eggs
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	const money = db.prepare(`
+		SELECT money
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	if (traders < 1) {
+		return res.status(400).json({
+			error: `${traders} traders aren't enough to sell a dozen`
+		});
+	}
+
+	if (eggs < 12) {
+		return res.status(400).json({
+			error: `${eggs} eggs aren't enough to sell a dozen`
+		});
+	}
+	const dozensToSell = Math.min(Math.floor(eggs/traderVolume), traders); // largest dozen amount of eggs traders have volume to handle
+	const revenue = money + dozensToSell * pricePerDozen;
+	const remainingEggs = eggs - dozensToSell * traderVolume;
+	console.log('Selling eggs');
+	db.prepare(`
+		UPDATE game_state
+		SET eggs = ?
+		SET money = ?
+		WHERE game_user_id IS ?
+		`).run(remainingEggs, revenue, userId);
+	res.json({ok: true, { eggs: remainingEggs, money: revenue });
+}
 app.post('/updateResource', (req, res) => {
 	const ALLOWED_COLUMNS = new Set([
 		'chickens',

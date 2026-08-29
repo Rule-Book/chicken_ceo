@@ -101,6 +101,40 @@ async function saveStats() {
 	loadStats();
 }
 
+async function sellEggs() {
+	if (getLocalResource('traders')) {
+		console.log('Need at least 1 trader to sell eggs');
+		return;
+	} else if (getLocalResource('eggs') < 12) {
+		console.log('not at least a dozen eggs to sell yet');
+		return;
+	}
+	const payload = {
+		userId: userCookie;
+	}
+	try {
+		const resp = await fetch('/sellEggs', {
+			method:'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+
+		});
+		const data = await resp.json();
+		console.log(data);
+		document.getElementById('eggs').textContent = data.eggs;
+		document.getElementById('money').textContent = data.money;
+
+
+	} catch (e) {
+		console.log(e.message);
+	}
+	console.log("sent sellEggs request from front-end");
+	saveStats();
+	lastSellTimestamp = Date.now();
+}
+
 async function loadStats() {
 	let temp = 0;
 	try {
@@ -123,23 +157,28 @@ async function loadStats() {
 	// store a local copy of the latest values from database to simulate game on client until next server sync
 	localChickens = temp.chickens;
 	initialEggs = temp.eggs;
-	storedTimestamp = Date.now();
+	lastSaveTimestamp = Date.now();
 }
 
-let storedSaveTimestamp = Date.now();
-let storedTimestamp = Date.now();
-let storedSellTimestamp = Date.now();
+let lastSaveTimestamp = Date.now();
+let lastSellTimestamp = Date.now();
 
 let initialEggs = 0;
 let localChickens = 0;
+
+function getElapsedSecsSince(storedTimestamp) {
+	const currentTimestamp = Date.now();
+	const elapsedMs = currentTimestamp - storedTimestamp;
+	const elapsedSecs = Math.floor(elapsedMs / 1000);
+	return elapsedSecs;
+}
+
 function countUp() {
 	const eggs = document.getElementById("eggs");
-	const currentTimestamp = Date.now();
-	const elapsedMs = currentTimestamp - storedTimestamp
-	const elapsedSaveMs = currentTimestamp - storedSaveTimestamp
-	const elapsedSecs = Math.floor(elapsedMs / 1000);
-	const freshEggs = initialEggs + Math.floor(elapsedMs / 1000) * localChickens;
+	const secondsSinceSave = getElapsedSecsSince(lastSaveTimestamp); 
+	const freshEggs = initialEggs + secondsSinceSave * localChickens; // calculate 1egg/sec/chicken + database chickens value
 	eggs.textContent = `${freshEggs}`;
+	const secondsSinceSell = getElapsedSecsSince(lastSellTimestamp); 
 	// if 30s have passed since storedSaveTimestamp
 	//   save
 	//   calculate elapsedSeconds = currentTimestamp - last saveTimestamp
@@ -152,10 +191,13 @@ function countUp() {
 	//     eggs api endpoint runs load after it receives 200 ok response
 	//   set new stored sellEggTimestamp (so 10s from now another sellEggs happens)
 	//   
-	if (elapsedSecs > 30) {
+	if (secondsSinceSave > 30) {
 		saveStats(); // triggers load, which refreshes the currentTimestamp; so this will loop every 30 elapsedSeconds
 	}
 
+	if (secondsSinceSell > 10) {
+		sellEggs(); // triggers load, which refreshes the currentTimestamp; so this will loop every 30 elapsedSeconds
+	}
 	requestAnimationFrame(countUp);
 }
 
