@@ -8,8 +8,8 @@
 - [x] implement REST API *save* user function
 - [x] implement remaining REST API functions
 ## Phase 2 Gameplay
-- [ ] add front-end buttons and methods to call API endpoints
-- [ ] hook up front-end buttons to API methods that update the DB
+- [x] add front-end buttons and methods to call API endpoints
+- [x] hook up front-end buttons to API methods that update the DB
 - [ ] add logic to automatically call *save* X times/min
 - [ ] manually test game plays logically
 ## Phase 3 Migrate to Cloud
