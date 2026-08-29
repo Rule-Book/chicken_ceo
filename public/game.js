@@ -65,14 +65,18 @@ async function init() {
 	}
 }
 
+function getLocalResource(resource) {
+	return document.getElementById(resource).textContent;
+}
+
 function getStats() {
 	const payload = {
-		chickens: 10,
-		coops: 5,
-		workers: 1,
-		traders: 30,
-		money: 12345,
-		eggs: 1
+		chickens: getLocalResource('chickens'),
+		coops: getLocalResource('coops'),
+		workers: getLocalResource('workers'),
+		traders: getLocalResource('traders'),
+		money: getLocalResource('money'),
+		eggs: getLocalResource('eggs')
 	};
 	return payload;
 }
