@@ -27,8 +27,37 @@ async function init() {
 	}
 }
 
-let temp = 0;
+function getStats() {
+	const payload = {
+		chickens: 10,
+		coops: 5,
+		workers: 1,
+		traders: 30,
+		money: 12345,
+		eggs: 1
+	};
+	return payload;
+
+async function saveStats() {
+	let stats = getStats();
+	stats.userId = userCookie;
+	try {
+		const resp = await fetch('/saveStats', {
+			method:'POST'
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(stats)
+
+		});
+		const data = await resp.json();
+	} catch (e) {
+		console.log(e.message);
+	}
+	console.log("completed save on front-end");
+
 async function loadStats() {
+	let temp = 0;
 	try {
 		const resp = await fetch('/loadStats', {method:'GET'});
 		const data = await resp.json();

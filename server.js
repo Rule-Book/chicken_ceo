@@ -107,3 +107,21 @@ app.get('/loadStats', (req, res) => {
 	res.json({ok: true, ...stats });
     }
 });
+
+app.get('/saveStats', (req, res) => {
+	const {chickens, coops, workers, traders, money, eggs, userId } = req.body;
+	console.log('received stats for user', userId);
+	console.log({ chickens, coops, workers, traders, money, eggs });
+	const userQuery = db.prepare(`
+		UPDATE game_state
+		SET 	chickens = ?, 
+			coops = ?,
+			workers = ?,
+			traders = ?,
+			money = ?,
+			eggs = ?
+		WHERE game_user_id IS ?`);
+	userQuery.run(chickens, coops, workers, traders, money, eggs, userId);
+	console.log('saved stats for user', userId);
+	res.json({ ok: true});
+});
