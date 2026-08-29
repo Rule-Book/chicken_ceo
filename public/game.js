@@ -98,6 +98,7 @@ async function saveStats() {
 		console.log(e.message);
 	}
 	console.log("completed save on front-end");
+	loadStats();
 }
 
 async function loadStats() {
@@ -125,7 +126,9 @@ async function loadStats() {
 	storedTimestamp = Date.now();
 }
 
+let storedSaveTimestamp = Date.now();
 let storedTimestamp = Date.now();
+let storedSellTimestamp = Date.now();
 
 let initialEggs = 0;
 let localChickens = 0;
@@ -133,9 +136,25 @@ function countUp() {
 	const eggs = document.getElementById("eggs");
 	const currentTimestamp = Date.now();
 	const elapsedMs = currentTimestamp - storedTimestamp
+	const elapsedSaveMs = currentTimestamp - storedSaveTimestamp
 	const elapsedSecs = Math.floor(elapsedMs / 1000);
 	const freshEggs = initialEggs + Math.floor(elapsedMs / 1000) * localChickens;
-	eggs.textContent = `${freshEggs} eggs`;
+	eggs.textContent = `${freshEggs}`;
+	// if 30s have passed since storedSaveTimestamp
+	//   save
+	//   calculate elapsedSeconds = currentTimestamp - last saveTimestamp
+	//   set the new stored savetimestamp (so 30s from now another save happens
+	//   load
+	// make it so that when buying, money is deducted according to resource bought
+	//
+	// if 10s have passed from storedsellEggTimestamp
+	//   sell Eggs api endpoint (api gets eggs and gets workers and , calculates math , updates money , 
+	//     eggs api endpoint runs load after it receives 200 ok response
+	//   set new stored sellEggTimestamp (so 10s from now another sellEggs happens)
+	//   
+	if (elapsedSecs > 30) {
+		saveStats(); // triggers load, which refreshes the currentTimestamp; so this will loop every 30 elapsedSeconds
+	}
 
 	requestAnimationFrame(countUp);
 }
