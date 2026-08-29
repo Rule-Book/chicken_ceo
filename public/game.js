@@ -12,6 +12,43 @@ function getUserId() {
 	} else {
 		console.log(`Found existing game_user_id: ${id}`);
 	}
+	return id;
+}
+
+const abbreviations = {
+	chicken: 'chickens',
+	coop: 'coops',
+	worker: 'workers',
+	trader: 'traders',
+	money: 'money',
+	egg: 'eggs'
+};
+
+function getDBCol(resource) {
+	const resource = resource.toLowerCase();
+	return abbreviations[resource];
+}
+
+function buyChicken() {
+	const request = {
+		resource: getDBCol('chicken'),
+		amount: 1,
+		userId: userCookie
+	};
+	try {
+		const resp = await fetch('/updateResource', {
+			method:'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(request)
+		});
+		const data = await resp.json();
+		if (!data.ok) throw new Error(data.msg);
+		console.log("Buy processed");
+	} catch (e) {
+		console.log(e.message);
+	}
 }
 
 const userCookie = getUserId();

@@ -126,3 +126,19 @@ app.post('/saveStats', (req, res) => {
 	console.log('saved stats for user', userId);
 	res.json({ ok: true});
 });
+
+app.post('/updateResource', (req, res) => {
+	const {resource, amount, userId } = req.body;
+	console.log('received stats for user', userId);
+	console.log({ chickens, coops, workers, traders, money, eggs });
+	const userQuery = db.prepare(`
+		UPDATE game_state
+		SET    ? = ? + ?, 
+		WHERE game_user_id IS ?`);
+	userQuery.run(resource, resource, amount, userId);
+	console.log('resource', resource);
+	console.log('amount', amount);
+	console.log('updated resource for user', userId);
+	res.json({ ok: true});
+});
+
