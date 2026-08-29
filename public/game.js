@@ -37,13 +37,14 @@ function getStats() {
 		eggs: 1
 	};
 	return payload;
+}
 
 async function saveStats() {
 	let stats = getStats();
 	stats.userId = userCookie;
 	try {
 		const resp = await fetch('/saveStats', {
-			method:'POST'
+			method:'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
@@ -55,6 +56,7 @@ async function saveStats() {
 		console.log(e.message);
 	}
 	console.log("completed save on front-end");
+}
 
 async function loadStats() {
 	let temp = 0;

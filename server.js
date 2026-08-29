@@ -108,7 +108,7 @@ app.get('/loadStats', (req, res) => {
     }
 });
 
-app.get('/saveStats', (req, res) => {
+app.post('/saveStats', (req, res) => {
 	const {chickens, coops, workers, traders, money, eggs, userId } = req.body;
 	console.log('received stats for user', userId);
 	console.log({ chickens, coops, workers, traders, money, eggs });
