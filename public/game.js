@@ -49,6 +49,7 @@ async function buyResource(resource) {
 	} catch (e) {
 		console.log(e.message);
 	}
+	loadStats();
 }
 
 const userCookie = getUserId();
