@@ -9,6 +9,7 @@ const DB_PATH = process.env.DB_PATH || 'game.db';
 const PORT = process.env.PORT || 3000;
 
 //serve everything in the public folder
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
