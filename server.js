@@ -167,8 +167,9 @@ app.post('/sellEggs', (req, res) => {
 		SET money = ?
 		WHERE game_user_id IS ?
 		`).run(remainingEggs, revenue, userId);
-	res.json({ok: true, { eggs: remainingEggs, money: revenue });
-}
+	res.json({ok: true, eggs: remainingEggs, money: revenue});
+});
+
 app.post('/updateResource', (req, res) => {
 	const ALLOWED_COLUMNS = new Set([
 		'chickens',

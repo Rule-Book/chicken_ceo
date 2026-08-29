@@ -102,6 +102,7 @@ async function saveStats() {
 }
 
 async function sellEggs() {
+	lastSellTimestamp = Date.now();
 	if (getLocalResource('traders')) {
 		console.log('Need at least 1 trader to sell eggs');
 		return;
@@ -110,8 +111,8 @@ async function sellEggs() {
 		return;
 	}
 	const payload = {
-		userId: userCookie;
-	}
+		userId: userCookie
+	};
 	try {
 		const resp = await fetch('/sellEggs', {
 			method:'POST',
@@ -132,10 +133,10 @@ async function sellEggs() {
 	}
 	console.log("sent sellEggs request from front-end");
 	saveStats();
-	lastSellTimestamp = Date.now();
 }
 
 async function loadStats() {
+	lastSaveTimestamp = Date.now();
 	let temp = 0;
 	try {
 		const resp = await fetch('/loadStats', {method:'GET'});
@@ -157,7 +158,6 @@ async function loadStats() {
 	// store a local copy of the latest values from database to simulate game on client until next server sync
 	localChickens = temp.chickens;
 	initialEggs = temp.eggs;
-	lastSaveTimestamp = Date.now();
 }
 
 let lastSaveTimestamp = Date.now();
