@@ -6,7 +6,7 @@
 - [x] Setup REST API to *create* & *load* user in sqlite
 - [x] Setup sqlite database
 - [x] implement REST API *save* user function
-- [ ] implement remaining REST API functions
+- [x] implement remaining REST API functions
 ## Phase 2 Gameplay
 - [ ] add front-end buttons and methods to call API endpoints
 - [ ] hook up front-end buttons to API methods that update the DB
