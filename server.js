@@ -131,11 +131,13 @@ const traderVolume = 12; //traders always sell a dozen
 const pricePerDozen = 24;
 app.post('/sellEggs', (req, res) => {
 	const { userId } = req.body;
-	const traders = db.prepare(`
+	console.log(userId);
+	const tradersquery = db.prepare(`
 		SELECT traders
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`);
+	const traders=tradersquery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
 	const eggs = db.prepare(`
 		SELECT eggs
 		FROM game_state
@@ -146,6 +148,9 @@ app.post('/sellEggs', (req, res) => {
 		FROM game_state
 		WHERE game_user_id IS ?
 		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	console.log(traders.traders);
+	console.log(eggs);
+	console.log(money);
 	if (traders < 1) {
 		return res.status(400).json({
 			error: `${traders} traders aren't enough to sell a dozen`
@@ -157,19 +162,27 @@ app.post('/sellEggs', (req, res) => {
 			error: `${eggs} eggs aren't enough to sell a dozen`
 		});
 	}
-	const dozensToSell = Math.min(Math.floor(eggs/traderVolume), traders); // largest dozen amount of eggs traders have volume to handle
-	const revenue = money + dozensToSell * pricePerDozen;
-	const remainingEggs = eggs - dozensToSell * traderVolume;
+	const dozensToSell = Math.min(Math.floor(eggs.eggs/traderVolume), traders.traders); // largest dozen amount of eggs traders have volume to handle
+	const revenue = money.money + dozensToSell * pricePerDozen;
+	const remainingEggs = eggs.eggs - dozensToSell * traderVolume;
+	console.log(remainingEggs);
+	console.log(revenue);
 	console.log('Selling eggs');
 	db.prepare(`
 		UPDATE game_state
-		SET eggs = ?
-		SET money = ?
+		SET eggs = ?,
+		money = ?
 		WHERE game_user_id IS ?
 		`).run(remainingEggs, revenue, userId);
 	res.json({ok: true, eggs: remainingEggs, money: revenue});
 });
 
+const cost = {
+	chickens: 40,
+	coops: 300,
+	workers: 100,
+	traders: 500
+};
 app.post('/updateResource', (req, res) => {
 	const ALLOWED_COLUMNS = new Set([
 		'chickens',
@@ -178,7 +191,18 @@ app.post('/updateResource', (req, res) => {
 		'traders',
 		'eggs'
 	]);
+	let money = db.prepare(`
+		SELECT money
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	money = money.money;
 	const {resource, amount, userId } = req.body;
+	if (money < cost[resource]) {
+		return res.status(400).json({
+			error: `Insufficient funds to buy: '${resource}' ${money}/${cost[resource]}`
+		});
+	}
 	console.log('received stats for user', userId);
 	console.log({resource, amount, userId });
 	if (!ALLOWED_COLUMNS.has(resource)) {

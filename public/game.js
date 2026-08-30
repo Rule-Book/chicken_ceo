@@ -103,7 +103,7 @@ async function saveStats() {
 
 async function sellEggs() {
 	lastSellTimestamp = Date.now();
-	if (getLocalResource('traders')) {
+	if (getLocalResource('traders') < 1) {
 		console.log('Need at least 1 trader to sell eggs');
 		return;
 	} else if (getLocalResource('eggs') < 12) {
