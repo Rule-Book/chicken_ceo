@@ -179,6 +179,11 @@ function countUp() {
 	const freshEggs = initialEggs + secondsSinceSave * localChickens; // calculate 1egg/sec/chicken + database chickens value
 	eggs.textContent = `${freshEggs}`;
 	const secondsSinceSell = getElapsedSecsSince(lastSellTimestamp); 
+	const sell_timer = document.getElementById("sell-timer");
+	const sell_timer_progress = Math.min(Math.floor(secondsSinceSell), 10); // divide by sell-timer seconds * 10 (cancels out); cap progress to 100%
+	let fullProgressBar = '||||||||||';
+	let emptyProgressBar = '----------';
+	sell_timer.textContent = '[' + fullProgressBar.slice(0, sell_timer_progress) + emptyProgressBar.slice(0, 10-sell_timer_progress) + ']';
 	// if 30s have passed since storedSaveTimestamp
 	//   save
 	//   calculate elapsedSeconds = currentTimestamp - last saveTimestamp

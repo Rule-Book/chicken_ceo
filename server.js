@@ -212,12 +212,13 @@ app.post('/updateResource', (req, res) => {
 	}
 	const sql = `
 		UPDATE game_state
-		SET    ${resource} = ${resource} + ? 
+		SET    ${resource} = ${resource} + ?,
+		    money = money - ?
 		WHERE game_user_id IS ?`;
 	const userQuery = db.prepare(sql);
 	console.log('resource', resource);
 	console.log('amount', amount);
-	userQuery.run(/*resource, resource,*/ amount, userId);
+	userQuery.run(/*resource, resource,*/ amount, cost[resource], userId);
 	console.log('updated resource for user', userId);
 	res.json({ ok: true});
 });
