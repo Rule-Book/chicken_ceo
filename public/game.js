@@ -53,6 +53,7 @@ async function buyResource(resource) {
 }
 
 const userCookie = getUserId();
+init();
 
 async function init() {
 	try {
