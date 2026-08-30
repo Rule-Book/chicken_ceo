@@ -80,6 +80,13 @@ app.get('/initializeUser', (req, res) => {
 	console.log('created user');
     } else {
 	console.log('found user');
+	let updateLoginTime = db.prepare(`
+    		UPDATE game_state 
+		SET last_save_time = datetime('now')
+    		WHERE game_user_id IS ?
+    	`);
+    	updateLoginTime.run('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+
     }
 });
 
@@ -130,19 +137,52 @@ app.post('/saveStats', (req, res) => {
 const traderVolume = 12; //traders always sell a dozen
 const pricePerDozen = 24;
 app.post('/sellEggs', (req, res) => {
+	//split off to syncEggs fn later?
+	let lastSync = db.prepare(`
+		SELECT last_save_time
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5')/*.last_save_time + 'Z' ).getTime()*/;
+	console.log(lastSync);
+	lastSync = lastSync.last_save_time;
+	console.log(lastSync);
+	lastSync = lastSync + 'Z';
+	console.log(lastSync);
+	lastSync = new Date(lastSync);
+	console.log(lastSync);
+	lastSync = lastSync.getTime();
+	console.log(lastSync);
+	const chickens = db.prepare(`
+		SELECT chickens
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	const eggs = db.prepare(`
+		SELECT eggs
+		FROM game_state
+		WHERE game_user_id IS ?
+		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	console.log(eggs.eggs);
+	console.log(chickens.chickens);
+	console.log(Date.now());
+	console.log(lastSync);
+	console.log(Date.now() - lastSync);
+	const updatedEggs = eggs.eggs + chickens.chickens * 1 /*egg per sec*/ * Math.floor((Date.now() - lastSync) / 1000);
+	console.log(updatedEggs);
+	/* end syncEggs snippet */
 	const { userId } = req.body;
 	console.log(userId);
+	db.prepare(`
+		UPDATE game_state
+		SET eggs = ?
+		WHERE game_user_id IS ?
+		`).run(updatedEggs, '666361b0-0fbc-4922-9fd4-8d6e298204b5');
 	const tradersquery = db.prepare(`
 		SELECT traders
 		FROM game_state
 		WHERE game_user_id IS ?
 		`);
 	const traders=tradersquery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
-	const eggs = db.prepare(`
-		SELECT eggs
-		FROM game_state
-		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
 	const money = db.prepare(`
 		SELECT money
 		FROM game_state
@@ -151,27 +191,30 @@ app.post('/sellEggs', (req, res) => {
 	console.log(traders.traders);
 	console.log(eggs);
 	console.log(money);
-	if (traders < 1) {
+	if (traders.traders < 1) {
 		return res.status(400).json({
 			error: `${traders} traders aren't enough to sell a dozen`
 		});
 	}
 
-	if (eggs < 12) {
+	if (eggs.eggs < 12) {
 		return res.status(400).json({
 			error: `${eggs} eggs aren't enough to sell a dozen`
 		});
 	}
+	console.log(Math.floor(eggs.eggs/traderVolume));
 	const dozensToSell = Math.min(Math.floor(eggs.eggs/traderVolume), traders.traders); // largest dozen amount of eggs traders have volume to handle
+	console.log(dozensToSell);
 	const revenue = money.money + dozensToSell * pricePerDozen;
-	const remainingEggs = eggs.eggs - dozensToSell * traderVolume;
+	const remainingEggs = updatedEggs - dozensToSell * traderVolume;
 	console.log(remainingEggs);
 	console.log(revenue);
 	console.log('Selling eggs');
 	db.prepare(`
 		UPDATE game_state
 		SET eggs = ?,
-		money = ?
+		money = ?,
+		last_save_time = datetime('now')
 		WHERE game_user_id IS ?
 		`).run(remainingEggs, revenue, userId);
 	res.json({ok: true, eggs: remainingEggs, money: revenue});
