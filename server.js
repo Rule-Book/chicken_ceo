@@ -197,13 +197,13 @@ app.post('/sellEggs', (req, res) => {
 		});
 	}
 
-	if (eggs.eggs < 12) {
+	if (updatedEggs < 12) {
 		return res.status(400).json({
 			error: `${eggs} eggs aren't enough to sell a dozen`
 		});
 	}
-	console.log(Math.floor(eggs.eggs/traderVolume));
-	const dozensToSell = Math.min(Math.floor(eggs.eggs/traderVolume), traders.traders); // largest dozen amount of eggs traders have volume to handle
+	console.log(Math.floor(updatedEggs/traderVolume));
+	const dozensToSell = Math.min(Math.floor(updatedEggs/traderVolume), traders.traders); // largest dozen amount of eggs traders have volume to handle
 	console.log(dozensToSell);
 	const revenue = money.money + dozensToSell * pricePerDozen;
 	const remainingEggs = updatedEggs - dozensToSell * traderVolume;
