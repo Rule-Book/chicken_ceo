@@ -15,4 +15,11 @@ docker login
 docker pull node:alpine3.23
 docker push rulebook/chicken-ceo:latest
 
+get aws authentication token
+get aws cli
+create ECR container registry after authenticating
+tag the image
+push to ECR
+Reference ECR's image in ECS
+
 passing json to and from api calls for performance & legibility
