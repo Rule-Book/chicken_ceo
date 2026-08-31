@@ -3,6 +3,7 @@ FROM node:alpine3.23 AS base
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+RUN apk add --no-cache python3 make
 RUN npm ci --omit=dev
 
 copy . ./
