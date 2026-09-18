@@ -23,3 +23,35 @@ push to ECR
 Reference ECR's image in ECS
 
 passing json to and from api calls for performance & legibility
+----
+## Install Docker in ec2 to run the pre-packaged container-image
+added ecr:GetAuthorizationToken and ecr:BatchGetImage policy to new ec2 instance
+udo dnf install docker -y
+sudo service docker start
+sudo usermod -aG docker ec2-user
+
+## Authenticate to AWS ECR Registry
+aws ecr get-login-password --region us-east-2 | \
+  docker login --username AWS --password-stdin \<docker-ecr-registry-url\>
+
+logout and re-login in order for the -aG docker usergroup to reload and grant permission if you get permission denied
+
+## Run docker image
+docker pull <regsitry-number>.dkr.ecr.us-east-2.amazon.aws.com/game/flight-farm:latest
+docker images
+docker run -d --name flight-farm -p 3000:3000 \
+  <registry-number>.dkr.ecr.us-east-2.amazonaws.com/game/flight-farm
+
+### Stop docker image before restarting
+docker stop flight-farm
+docker rm flight-farm
+
+## Ensure connectivity
+edit EC2-instance security group role to allow inbound traffic 
+  TCP, port 3000, source, 0.0.0.0/0
+  Dockerfile `EXPOSE 3000`
+  Node `app.listen(3000)`
+
+## Concerns about billing after exposing ports
+Create AWS Console Billing -> Budgets
+Enable email notification at 80% and 100%
