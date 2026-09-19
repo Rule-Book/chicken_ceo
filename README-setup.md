@@ -36,15 +36,21 @@ aws ecr get-login-password --region us-east-2 | \
 
 logout and re-login in order for the -aG docker usergroup to reload and grant permission if you get permission denied
 
+## Can copy docker push commands from aws account's ECR registry help button
+
 ## Run docker image
 docker pull <regsitry-number>.dkr.ecr.us-east-2.amazon.aws.com/game/flight-farm:latest
 docker images
 docker run -d --name flight-farm -p 3000:3000 \
   <registry-number>.dkr.ecr.us-east-2.amazonaws.com/game/flight-farm
 
+## View realtime node logs (optionally from last 50 lines)
+docker logs [--tail 50] -f flight-farm
+
 ### Stop docker image before restarting
 docker stop flight-farm
 docker rm flight-farm
+docker pull <regsitry-number>.dkr.ecr.us-east-2.amazon.aws.com/game/flight-farm:latest
 
 ## Ensure connectivity
 edit EC2-instance security group role to allow inbound traffic 
