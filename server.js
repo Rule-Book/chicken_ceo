@@ -63,9 +63,8 @@ db.exec(`
 
 app.get('/initializeUser', (req, res) => {
     const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
-    // const user = userQuery.get(userCookie);
-    // hardcoded cookie to test undefined response
-    const user = userQuery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    // Source user id from cookie passed in request
+    const user = req.headers['X-Game-User-ID'];
     console.log('loading user');
     
     // create row with default values if user is not in table
@@ -76,7 +75,7 @@ app.get('/initializeUser', (req, res) => {
     		INSERT INTO game_state (game_user_id, last_save_time)
     		VALUES (?, datetime('now'))
     	`);
-    	createDefaultUser.run('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    	createDefaultUser.run(user);
 	console.log('created user');
     } else {
 	console.log('found user');
@@ -85,7 +84,7 @@ app.get('/initializeUser', (req, res) => {
 		SET last_save_time = datetime('now')
     		WHERE game_user_id IS ?
     	`);
-    	updateLoginTime.run('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    	updateLoginTime.run(user);
 
     }
 });
@@ -93,9 +92,8 @@ app.get('/initializeUser', (req, res) => {
 
 app.get('/loadStats', (req, res) => {
     const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
-    // const user = userQuery.get(userCookie);
-    // hardcoded cookie to test undefined response
-    const user = userQuery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    // Source user id from cookie passed in request
+    const user = req.headers['X-Game-User-ID'];
     console.log('loading user');
     
     // create row with default values if user is not in table
@@ -107,7 +105,7 @@ app.get('/loadStats', (req, res) => {
     	let loadUserStats = db.prepare(`
     		SELECT chickens, coops, workers, traders, money, eggs FROM game_state WHERE game_user_id IS ?
     	`);
-    	const stats = loadUserStats.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+    	const stats = loadUserStats.get(user);
 	if (!stats) return res.status(404).json({ error: 'No user found' });
 	console.log('found user');
 	    console.log(stats);
@@ -137,12 +135,15 @@ app.post('/saveStats', (req, res) => {
 const traderVolume = 12; //traders always sell a dozen
 const pricePerDozen = 24;
 app.post('/sellEggs', (req, res) => {
+    // Source user id from cookie passed in request
+    const user = req.headers['X-Game-User-ID'];
+    console.log('loading user');
 	//split off to syncEggs fn later?
 	let lastSync = db.prepare(`
 		SELECT last_save_time
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5')/*.last_save_time + 'Z' ).getTime()*/;
+		`).get(user)/*.last_save_time + 'Z' ).getTime()*/;
 	console.log(lastSync);
 	lastSync = lastSync.last_save_time;
 	console.log(lastSync);
@@ -156,12 +157,12 @@ app.post('/sellEggs', (req, res) => {
 		SELECT chickens
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`).get(user);
 	const eggs = db.prepare(`
 		SELECT eggs
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`).get(user);
 	console.log(eggs.eggs);
 	console.log(chickens.chickens);
 	console.log(Date.now());
@@ -176,18 +177,18 @@ app.post('/sellEggs', (req, res) => {
 		UPDATE game_state
 		SET eggs = ?
 		WHERE game_user_id IS ?
-		`).run(updatedEggs, '666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`).run(updatedEggs, user);
 	const tradersquery = db.prepare(`
 		SELECT traders
 		FROM game_state
 		WHERE game_user_id IS ?
 		`);
-	const traders=tradersquery.get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+	const traders=tradersquery.get(user);
 	const money = db.prepare(`
 		SELECT money
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`).get(user);
 	console.log(traders.traders);
 	console.log(eggs);
 	console.log(money);
@@ -238,7 +239,7 @@ app.post('/updateResource', (req, res) => {
 		SELECT money
 		FROM game_state
 		WHERE game_user_id IS ?
-		`).get('666361b0-0fbc-4922-9fd4-8d6e298204b5');
+		`).get(user);
 	money = money.money;
 	const {resource, amount, userId } = req.body;
 	if (money < cost[resource]) {

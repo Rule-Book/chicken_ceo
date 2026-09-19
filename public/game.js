@@ -42,7 +42,8 @@ async function buyResource(resource) {
 		const resp = await fetch('/updateResource', {
 			method:'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'X-Game-User-ID': userCookie
 			},
 			body: JSON.stringify(request)
 		});
@@ -60,7 +61,12 @@ init();
 
 async function init() {
 	try {
-		const resp = await fetch('/initializeUser', {method:'GET'});
+		const resp = await fetch('/initializeUser', {
+			method: 'GET',
+			headers: {
+				'X-Game-User-ID': userCookie
+			}
+		);
 		const data = await resp.json();
 		if (!data.ok) throw new Error(data.msg);
 		console.log("Init processed");
@@ -92,7 +98,8 @@ async function saveStats() {
 		const resp = await fetch('/saveStats', {
 			method:'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'X-Game-User-ID': userCookie
 			},
 			body: JSON.stringify(stats)
 
@@ -121,7 +128,8 @@ async function sellEggs() {
 		const resp = await fetch('/sellEggs', {
 			method:'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'X-Game-User-ID': userCookie
 			},
 			body: JSON.stringify(payload)
 
@@ -143,7 +151,12 @@ async function loadStats() {
 	lastSaveTimestamp = Date.now();
 	let temp = 0;
 	try {
-		const resp = await fetch('/loadStats', {method:'GET'});
+		const resp = await fetch('/loadStats', {
+			method: 'GET',
+			headers: {
+				'X-Game-User-ID': userCookie
+			}
+		);
 		const data = await resp.json();
 		if (!data.ok) throw new Error(data.msg);
 		console.log("Load processed");
