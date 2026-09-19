@@ -66,7 +66,7 @@ async function init() {
 			headers: {
 				'X-Game-User-ID': userCookie
 			}
-		);
+		});
 		const data = await resp.json();
 		if (!data.ok) throw new Error(data.msg);
 		console.log("Init processed");
@@ -156,7 +156,7 @@ async function loadStats() {
 			headers: {
 				'X-Game-User-ID': userCookie
 			}
-		);
+		});
 		const data = await resp.json();
 		if (!data.ok) throw new Error(data.msg);
 		console.log("Load processed");

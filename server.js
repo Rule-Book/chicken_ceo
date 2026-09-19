@@ -29,12 +29,30 @@ db.exec(`
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     game_user_id    TEXT UNIQUE,
     last_save_time  TEXT,
-    chickens        INTEGER DEFAULT 0,
-    coops           INTEGER DEFAULT 0,
-    workers         INTEGER DEFAULT 0,
-    traders         INTEGER DEFAULT 0,
-    money           INTEGER DEFAULT 0,
-    eggs            INTEGER DEFAULT 0
+
+    chickens        INTEGER NOT NULL
+                    DEFAULT 1
+		    CHECK (chickens = CAST(chickens AS INTEGER)),
+
+    coops           INTEGER NOT NULL
+                    DEFAULT 1
+		    CHECK (coops = CAST(coops AS INTEGER)),
+
+    workers         INTEGER NOT NULL
+                    DEFAULT 1
+                    CHECK (workers = CAST(workers AS INTEGER)),
+
+    traders         INTEGER NOT NULL
+                    DEFAULT 1
+                    CHECK (traders = CAST(traders AS INTEGER)),
+
+    money           INTEGER NOT NULL
+                    DEFAULT 1
+                    CHECK (money = CAST(money AS INTEGER)),
+
+    eggs            INTEGER NOT NULL
+                    DEFAULT 1
+                    CHECK (eggs = CAST(eggs AS INTEGER))
   )
 `);
 
@@ -64,18 +82,29 @@ db.exec(`
 app.get('/initializeUser', (req, res) => {
     const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
     // Source user id from cookie passed in request
-    const user = req.headers['X-Game-User-ID'];
+    console.log(`headers = ${req.headers}`);
+    console.log(`header['X-Game-User-ID']=${req.get('X-Game-User-ID')}`);
+    const user = req.get('X-Game-User-ID');
+    console.log(user);
     console.log('loading user');
-    
+    const foundUser = userQuery.get(user);
+    console.log(`when checking db to see if user exists, found this value: user = ${foundUser}`)
     // create row with default values if user is not in table
-    if (user == undefined) {
+    if (foundUser == undefined) {
     	console.log("user does not exist:");
     	// console.log(userCookie);
     	let createDefaultUser = db.prepare(`
-    		INSERT INTO game_state (game_user_id, last_save_time)
-    		VALUES (?, datetime('now'))
+    		INSERT INTO game_state (
+		game_user_id, last_save_time, 
+		chickens,
+		coops,
+		workers,
+		traders,
+		money,
+		eggs)
+    		VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?)
     	`);
-    	createDefaultUser.run(user);
+    	createDefaultUser.run(user, 1, 1, 1, 1, 0, 0);
 	console.log('created user');
     } else {
 	console.log('found user');
@@ -93,7 +122,7 @@ app.get('/initializeUser', (req, res) => {
 app.get('/loadStats', (req, res) => {
     const userQuery = db.prepare("SELECT * FROM game_state WHERE game_user_id IS ?");
     // Source user id from cookie passed in request
-    const user = req.headers['X-Game-User-ID'];
+    const user = req.get('X-Game-User-ID');
     console.log('loading user');
     
     // create row with default values if user is not in table
@@ -115,8 +144,9 @@ app.get('/loadStats', (req, res) => {
 });
 
 app.post('/saveStats', (req, res) => {
+	const user = req.get('X-Game-User-ID');
 	const {chickens, coops, workers, traders, money, eggs, userId } = req.body;
-	console.log('received stats for user', userId);
+	console.log('received stats for user', user);
 	console.log({ chickens, coops, workers, traders, money, eggs });
 	const userQuery = db.prepare(`
 		UPDATE game_state
@@ -127,8 +157,8 @@ app.post('/saveStats', (req, res) => {
 			money = ?,
 			eggs = ?
 		WHERE game_user_id IS ?`);
-	userQuery.run(chickens, coops, workers, traders, money, eggs, userId);
-	console.log('saved stats for user', userId);
+	userQuery.run(chickens, coops, workers, traders, money, eggs, user);
+	console.log('saved stats for user', user);
 	res.json({ ok: true});
 });
 
@@ -136,7 +166,7 @@ const traderVolume = 12; //traders always sell a dozen
 const pricePerDozen = 24;
 app.post('/sellEggs', (req, res) => {
     // Source user id from cookie passed in request
-    const user = req.headers['X-Game-User-ID'];
+    const user = req.get('X-Game-User-ID');
     console.log('loading user');
 	//split off to syncEggs fn later?
 	let lastSync = db.prepare(`
@@ -172,7 +202,7 @@ app.post('/sellEggs', (req, res) => {
 	console.log(updatedEggs);
 	/* end syncEggs snippet */
 	const { userId } = req.body;
-	console.log(userId);
+	console.log(user);
 	db.prepare(`
 		UPDATE game_state
 		SET eggs = ?
@@ -217,7 +247,7 @@ app.post('/sellEggs', (req, res) => {
 		money = ?,
 		last_save_time = datetime('now')
 		WHERE game_user_id IS ?
-		`).run(remainingEggs, revenue, userId);
+		`).run(remainingEggs, revenue, user);
 	res.json({ok: true, eggs: remainingEggs, money: revenue});
 });
 
@@ -228,6 +258,7 @@ const cost = {
 	traders: 500
 };
 app.post('/updateResource', (req, res) => {
+	const user = req.get('X-Game-User-ID');
 	const ALLOWED_COLUMNS = new Set([
 		'chickens',
 		'coops',
@@ -247,7 +278,7 @@ app.post('/updateResource', (req, res) => {
 			error: `Insufficient funds to buy: '${resource}' ${money}/${cost[resource]}`
 		});
 	}
-	console.log('received stats for user', userId);
+	console.log('received stats for user', user);
 	console.log({resource, amount, userId });
 	if (!ALLOWED_COLUMNS.has(resource)) {
 		return res.status(404).json({
@@ -262,8 +293,8 @@ app.post('/updateResource', (req, res) => {
 	const userQuery = db.prepare(sql);
 	console.log('resource', resource);
 	console.log('amount', amount);
-	userQuery.run(/*resource, resource,*/ amount, cost[resource], userId);
-	console.log('updated resource for user', userId);
+	userQuery.run(/*resource, resource,*/ amount, cost[resource], user);
+	console.log('updated resource for user', user);
 	res.json({ ok: true});
 });
 
