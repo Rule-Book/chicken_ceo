@@ -10,13 +10,14 @@
 ## Phase 2 Gameplay
 - [x] add front-end buttons and methods to call API endpoints
 - [x] hook up front-end buttons to API methods that update the DB
-- [ ] add logic to automatically call *save* X times/min
+- [x] add logic to automatically call *save* X times/min
 - [ ] manually test game plays logically
 ## Phase 3 Migrate to Cloud
-- [ ] determine logical translations of components to AWS resources
+- [x] determine logical translations of components to AWS resources
   - (persistent) database
   - front\_end *html with vanilla js*
   - back\_end *node.js*
+    - working now as ec2 instance hosting docker-container with front\_end + back\_end exposing port 3000
 ## Phase 4 CICD
 - code-base *host on github*
 - deploy application *github actions?*
