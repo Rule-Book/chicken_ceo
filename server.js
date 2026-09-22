@@ -6,7 +6,7 @@ const sqlite3 = require('better-sqlite3');
 
 const app = express();
 const DB_PATH = process.env.DB_PATH || 'game.db';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 //serve everything in the public folder
 app.use(express.json());
@@ -14,6 +14,10 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+app.get('/api/test', (req, res) => {
   res.send('Hello World!');
 });
 

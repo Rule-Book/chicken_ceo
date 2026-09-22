@@ -39,7 +39,7 @@ async function buyResource(resource) {
 		userId: userCookie
 	};
 	try {
-		const resp = await fetch('/updateResource', {
+		const resp = await fetch('/api/updateResource', {
 			method:'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ init();
 
 async function init() {
 	try {
-		const resp = await fetch('/initializeUser', {
+		const resp = await fetch('/api/initializeUser', {
 			method: 'GET',
 			headers: {
 				'X-Game-User-ID': userCookie
@@ -95,7 +95,7 @@ async function saveStats() {
 	let stats = getStats();
 	stats.userId = userCookie;
 	try {
-		const resp = await fetch('/saveStats', {
+		const resp = await fetch('/api/saveStats', {
 			method:'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ async function sellEggs() {
 		userId: userCookie
 	};
 	try {
-		const resp = await fetch('/sellEggs', {
+		const resp = await fetch('/api/sellEggs', {
 			method:'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ async function loadStats() {
 	lastSaveTimestamp = Date.now();
 	let temp = 0;
 	try {
-		const resp = await fetch('/loadStats', {
+		const resp = await fetch('/api/loadStats', {
 			method: 'GET',
 			headers: {
 				'X-Game-User-ID': userCookie

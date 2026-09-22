@@ -22,9 +22,23 @@
 - [ ] create AWS CloudFront Distribution connected to S3 bucket
 - [ ] create certificate to allow HTTPS traffic with AWS Certificate Manager (ACM)
 - [ ] create Application Load Balancer (using certificate) to process HTTPS requests from CloudFront -> ALB -> EC2
+  - create EC2 target group to assign to ALB
+  - assign EC2 instance(s) to Load Balancer Target Group
+  - ensure load balancer listens at 80
+  - forward load balancer port 80 requests along port 80
+  - ensure Load Balancer has access to the Availability Zone(s) which EC2 instance is in
+  - ensure Load Balancer accepts inbound traffic from EVERYWHERE!!
 - [ ] update backend 
   - to listen for HTTP requests from ALB (port 80/8080)
-  - security group to allow incoming 80/8080 requests instead of 3000
+  - update EC2 security group to allow inbound port 80 requests (instead of 3000) from load balancer's security-group
+- [ ] update frontend
+  - to send requests using port 80
+  - over to the fqdn of the Load Balancer OR just prepend '/api/*'
+- [ ] update cloudfront distribution
+  - origin
+    - create an origin to handle HTTP-ONLY requests to ALB
+  - behavior
+    - create a new behavior for /api/* requests without caching and ignoring CORS
 - [ ] migrate from docker-contained sqlite db to remote PostgresQL db
   - [ ] tbd
 ## Phase 4 CICD
