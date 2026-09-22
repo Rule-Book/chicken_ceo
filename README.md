@@ -18,6 +18,15 @@
   - front\_end *html with vanilla js*
   - back\_end *node.js*
     - working now as ec2 instance hosting docker-container with front\_end + back\_end exposing port 3000
+- [ ] move public folder to S3 bucket
+- [ ] create AWS CloudFront Distribution connected to S3 bucket
+- [ ] create certificate to allow HTTPS traffic with AWS Certificate Manager (ACM)
+- [ ] create Application Load Balancer (using certificate) to process HTTPS requests from CloudFront -> ALB -> EC2
+- [ ] update backend 
+  - to listen for HTTP requests from ALB (port 80/8080)
+  - security group to allow incoming 80/8080 requests instead of 3000
+- [ ] migrate from docker-contained sqlite db to remote PostgresQL db
+  - [ ] tbd
 ## Phase 4 CICD
 - code-base *host on github*
 - deploy application *github actions?*
