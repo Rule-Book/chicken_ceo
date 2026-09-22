@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN apk add --no-cache python3 make
+RUN apk add --no-cache sqlite
 RUN npm ci --omit=dev
 
 copy . ./

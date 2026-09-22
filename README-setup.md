@@ -61,6 +61,7 @@ edit EC2-instance security group role to allow inbound traffic
 many changes to ports, security groups, and stripping /api/(.\*) to \\$1 using a transform rule in the ALB before forwarding to EC2
 because I do not have a Domain/DNSName and am not using a self-signed certificate, HTTPS cloudfront api requests are (per the cloudfront behavior) forwarded as http-only to the ALB over port 80, received by the ALB, stripped of /api, forwarded over port 80 to EC2 (who only accepts outbound requests from the ALB's security group). I believe EC2 responds back to the front-end with http response.
 I need to update all of the await fetch calls from /* to /api/* before the ALB strips them of /api/. This is so that the ALB knows to process these requests separately from the requests for static html and static js stored in s3.
+debug db from docker image `docker exec flight-farm sqlite3 game.db "select * from game\_state"`
 
 ## Concerns about billing after exposing ports
 Create AWS Console Billing -> Budgets
